@@ -2,17 +2,18 @@ import WEmail from './src/WEmail.mjs'
 //import WEmail from './dist/w-email.umd.js'
 import fs from 'fs'
 
+
 //ad
-let j=fs.readFileSync('D:\\開源-Javascript-w-email\\ad.txt', 'utf8')
-let ad=JSON.parse(j)
+let j = fs.readFileSync('D:\\開源-Javascript-w-email\\ad.txt', 'utf8')
+let ad = JSON.parse(j)
 
 //opt
 let opt = {
     srcName: 'test name',
     srcEmail: ad.srcEmail,
-    srcPW:ad.srcPW,
+    srcPW: ad.srcPW,
     emTitle: 'test title',
-    emContent: '<h4>test head</h4>'+'<div>test content</div>',
+    emContent: '<h4>test head</h4>' + '<div>test content</div>',
     emEmails: 'firsemisphere@gmail.com',
     //emEmailsCC: 'firsemisphere@gmail.com',
     //emEmailsBCC: 'firsemisphere@gmail.com',
@@ -24,9 +25,9 @@ let opt = {
 
 //WEmail
 new WEmail(opt)
-    .then((msg)=>{
-        console.log('then',msg)
+    .then((msg) => {
+        console.log('then', msg)
     })
-    .catch((err)=>{
-        console.log('catch',err)
+    .catch((err) => {
+        console.log('catch', err)
     })

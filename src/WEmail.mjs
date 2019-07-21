@@ -3,12 +3,7 @@ import get from 'lodash/get'
 import genPm from 'wsemi/src/genPm.mjs'
 import isstr from 'wsemi/src/isstr.mjs'
 import isobj from 'wsemi/src/isobj.mjs'
-
-
-function isEmail(email) {
-    let r = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    return r.test(String(email).toLowerCase())
-}
+import isEmail from 'wsemi/src/isEmail.mjs'
 
 
 /**
@@ -28,7 +23,7 @@ function isEmail(email) {
  * @param {Object|Array} [opt.attachments=[]] 輸入附件物件或陣列，預設[]，物件內需包含filename與path
  * @example
  * import WEmail from 'w-eamil'
- * 
+ *
  * //opt
  * let opt = {
  *     srcName: 'test name',
@@ -44,7 +39,7 @@ function isEmail(email) {
  *         path: 'your filepath'
  *     }
  * }
- * 
+ *
  * //WEmail
  * new WEmail(opt)
  *     .then((msg)=>{

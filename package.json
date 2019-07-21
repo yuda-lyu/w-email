@@ -1,6 +1,6 @@
 {
   "name": "w-email",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A wrapper nodemailer for email.",
   "main": "dist/w-email.umd.js",
   "dependencies": {
@@ -42,7 +42,7 @@
     "rollup-plugin-vue": "^5.0.1",
     "rollup-plugin-vue-template-compiler": "^1.0.3",
     "vue-template-compiler": "^2.6.10",
-    "wsemi": "^1.1.17"
+    "wsemi": "^1.1.18"
   },
   "scripts": {
     "test": "mocha --require @babel/register",
