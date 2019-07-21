@@ -30,10 +30,10 @@ let opt = {
     srcPW: 'your password',
     emTitle: 'test title',
     emContent: '<h4>test head</h4>'+'<div>test content</div>',
-    emEmails: 'to email',
-    //emEmailsCC: 'to email',
-    //emEmailsBCC: 'to email',
-    attachments: {
+    toEmails: 'to email',
+    //toEmailsCC: 'to email',
+    //toEmailsBCC: 'to email',
+    emAttachments: {
         filename: 'your filename',
         path: 'your filepath'
     }

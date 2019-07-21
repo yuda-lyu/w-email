@@ -17,10 +17,10 @@ import isEmail from 'wsemi/src/isEmail.mjs'
  * @param {String} [opt.srcPort=587] 輸入郵件伺服器連接埠，預設587
  * @param {String} [opt.emTitle=''] 輸入郵件名稱字串，預設''
  * @param {String} [opt.emContent=''] 輸入郵件訊息字串，預設''
- * @param {String|Array} [opt.emEmails=[]] 輸入收件人email字串或陣列，預設[]
- * @param {String|Array} [opt.emEmailsCC=[]] 輸入副本收件人email字串或陣列，預設[]
- * @param {String|Array} [opt.emEmailsBCC=[]] 輸入密件副本收件人email字串或陣列，預設[]
- * @param {Object|Array} [opt.attachments=[]] 輸入附件物件或陣列，預設[]，物件內需包含filename與path
+ * @param {String|Array} [opt.toEmails=[]] 輸入收件人email字串或陣列，預設[]
+ * @param {String|Array} [opt.toEmailsCC=[]] 輸入副本收件人email字串或陣列，預設[]
+ * @param {String|Array} [opt.toEmailsBCC=[]] 輸入密件副本收件人email字串或陣列，預設[]
+ * @param {Object|Array} [opt.emAttachments=[]] 輸入附件物件或陣列，預設[]，物件內需包含filename與path
  * @example
  * import WEmail from 'w-eamil'
  *
@@ -31,10 +31,10 @@ import isEmail from 'wsemi/src/isEmail.mjs'
  *     srcPW: 'your password',
  *     emTitle: 'test title',
  *     emContent: '<h4>test head</h4>'+'<div>test content</div>',
- *     emEmails: 'to email',
- *     //emEmailsCC: 'to email',
- *     //emEmailsBCC: 'to email',
- *     attachments: {
+ *     toEmails: 'to email',
+ *     //toEmailsCC: 'to email',
+ *     //toEmailsBCC: 'to email',
+ *     emAttachments: {
  *         filename: 'your filename',
  *         path: 'your filepath'
  *     }
@@ -77,36 +77,29 @@ function email(opt = {}) {
     //郵件訊息
     let emContent = get(opt, 'emContent', '')
 
+    //附件
+    let emAttachments = get(opt, 'emAttachments', [])
+    if (isobj(emAttachments)) {
+        emAttachments = [emAttachments]
+    }
+
     //收件人email
-    let emEmails = get(opt, 'emEmails', [])
-    if (isstr(emEmails)) {
-        emEmails = [emEmails]
+    let toEmails = get(opt, 'toEmails', [])
+    if (isstr(toEmails)) {
+        toEmails = [toEmails]
     }
 
     //副本收件人email
-    let emEmailsCC = get(opt, 'emEmailsCC', [])
-    if (isstr(emEmailsCC)) {
-        emEmailsCC = [emEmailsCC]
+    let toEmailsCC = get(opt, 'toEmailsCC', [])
+    if (isstr(toEmailsCC)) {
+        toEmailsCC = [toEmailsCC]
     }
 
     //密件副本收件人email
-    let emEmailsBCC = get(opt, 'emEmailsBCC', [])
-    if (isstr(emEmailsBCC)) {
-        emEmailsBCC = [emEmailsBCC]
+    let toEmailsBCC = get(opt, 'toEmailsBCC', [])
+    if (isstr(toEmailsBCC)) {
+        toEmailsBCC = [toEmailsBCC]
     }
-
-    //附件
-    let attachments = get(opt, 'attachments', [])
-    if (isobj(attachments)) {
-        attachments = [attachments]
-    }
-    // [{
-    //     filename: 'text01.txt',
-    //     content: '聯候家上去工的調她者壓工，我笑它外有現，血有到同，民由快的重觀在保導然安作但。護見中城備長結現給都看面家銷先然非會生東一無中；內他的下來最書的從人聲觀說的用去生我，生節他活古視心放十壓心急我我們朋吃，毒素一要溫市歷很爾的房用聽調就層樹院少了紀苦客查標地主務所轉，職計急印形。團著先參那害沒造下至算活現興質美是為使！色社影；得良灣......克卻人過朋天點招？不族落過空出著樣家男，去細大如心發有出離問歡馬找事'
-    // }, {
-    //     filename: 'unnamed.jpg',
-    //     path: '/Users/Weiju/Pictures/unnamed.jpg'
-    // }]
 
     //transporter
     let transporter = nodemailer.createTransport({
@@ -122,12 +115,12 @@ function email(opt = {}) {
     //optt
     let optt = {
         from: `${srcName} <${srcEmail}>`,
-        to: emEmails.join(','),
-        cc: emEmailsCC.join(','),
-        bcc: emEmailsBCC.join(','),
+        to: toEmails.join(','),
+        cc: toEmailsCC.join(','),
+        bcc: toEmailsBCC.join(','),
         subject: emTitle,
         html: emContent,
-        attachments: attachments
+        attachments: emAttachments
     }
 
     //sendMail

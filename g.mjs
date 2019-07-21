@@ -14,10 +14,10 @@ let opt = {
     srcPW: ad.srcPW,
     emTitle: 'test title',
     emContent: '<h4>test head</h4>' + '<div>test content</div>',
-    emEmails: 'firsemisphere@gmail.com',
-    //emEmailsCC: 'firsemisphere@gmail.com',
-    //emEmailsBCC: 'firsemisphere@gmail.com',
-    attachments: {
+    toEmails: 'firsemisphere@gmail.com',
+    //toEmailsCC: 'firsemisphere@gmail.com',
+    //toEmailsBCC: 'firsemisphere@gmail.com',
+    emAttachments: {
         filename: 'att.txt',
         path: 'D:\\開源-Javascript-w-email\\att.txt'
     }
