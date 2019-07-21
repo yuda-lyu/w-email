@@ -63,10 +63,7 @@ let rs = _.map(cps, function(v) {
         output: {
             banner: banner,
             globals: { //指定哪些外部模組的名稱，左邊為內部模組名稱，右邊為外部提供模組名稱
-                '@hapi/hapi': '@hapi/hapi',
-                'events': 'events',
-                'mongodb': 'mongodb',
-                'stream': 'stream',
+                'nodemailer': 'nodemailer',
             },
             format: 'umd',
             name: name,
@@ -74,10 +71,7 @@ let rs = _.map(cps, function(v) {
             sourcemap: true
         },
         external: [ //指定哪些模組需視為外部模組
-            '@hapi/hapi',
-            'events',
-            'mongodb',
-            'stream',
+            'nodemailer',
         ],
         plugins: optPlugins
     }

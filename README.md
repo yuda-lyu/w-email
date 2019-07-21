@@ -10,7 +10,7 @@ A wrapper nodemailer for email.
 [![jsdelivr download](https://img.shields.io/jsdelivr/npm/hm/w-email.svg)](https://www.jsdelivr.com/package/npm/w-email)
 
 ## Documentation
-To view documentation or get support, visit [docs](https://yuda-lyu.github.io/w-email/WUsersServer.html).
+To view documentation or get support, visit [docs](https://yuda-lyu.github.io/w-email/global.html).
 
 ## Installation
 ### Using npm(ES6 module):
