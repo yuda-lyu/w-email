@@ -21,6 +21,7 @@ import isEmail from 'wsemi/src/isEmail.mjs'
  * @param {String|Array} [opt.toEmailsCC=[]] 輸入副本收件人email字串或陣列，預設[]
  * @param {String|Array} [opt.toEmailsBCC=[]] 輸入密件副本收件人email字串或陣列，預設[]
  * @param {Object|Array} [opt.emAttachments=[]] 輸入附件物件或陣列，預設[]，物件內需包含filename與path
+ * @returns {Promise} 回傳Promise，resolve回傳成功訊息，reject回傳錯誤訊息
  * @example
  * import WEmail from 'w-eamil'
  *
