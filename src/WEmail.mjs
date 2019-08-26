@@ -50,7 +50,7 @@ import isEmail from 'wsemi/src/isEmail.mjs'
  *         console.log('catch',err)
  *     })
  */
-function email(opt = {}) {
+function WEmail(opt = {}) {
     let pm = genPm()
 
     //寄件人顯示名稱
@@ -138,4 +138,4 @@ function email(opt = {}) {
 }
 
 
-export default email
+export default WEmail
