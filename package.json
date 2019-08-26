@@ -1,6 +1,6 @@
 {
   "name": "w-email",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "A wrapper nodemailer for email.",
   "main": "dist/w-email.umd.js",
   "dependencies": {
