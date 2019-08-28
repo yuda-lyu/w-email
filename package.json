@@ -1,6 +1,6 @@
 {
   "name": "w-email",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "A wrapper nodemailer for email.",
   "main": "dist/w-email.umd.js",
   "dependencies": {
@@ -20,7 +20,7 @@
     "core-js": "^3.2.1",
     "docdash": "^1.1.1",
     "eslint": "^6.2.2",
-    "eslint-config-standard": "^14.0.1",
+    "eslint-config-standard": "^14.1.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
@@ -42,7 +42,7 @@
     "rollup-plugin-vue": "^5.0.1",
     "rollup-plugin-vue-template-compiler": "^1.0.3",
     "vue-template-compiler": "^2.6.10",
-    "wsemi": "^1.2.23"
+    "wsemi": "^1.2.25"
   },
   "scripts": {
     "test": "mocha --require @babel/register",
