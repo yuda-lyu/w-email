@@ -1,6 +1,6 @@
 {
   "name": "w-email",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "A wrapper nodemailer for email.",
   "main": "dist/w-email.umd.js",
   "dependencies": {
@@ -45,7 +45,7 @@
     "wsemi": "^1.2.25"
   },
   "scripts": {
-    "test": "mocha --require @babel/register",
+    "test": "./node_modules/.bin/mocha --require @babel/register",
     "deploy": "gh-pages -d docs"
   },
   "repository": {
