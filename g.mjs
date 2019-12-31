@@ -4,7 +4,7 @@ import fs from 'fs'
 
 
 //ad
-let j = fs.readFileSync('D:\\開源-Javascript-w-email\\ad.txt', 'utf8')
+let j = fs.readFileSync('D:\\開源-JS-003-2-w-email\\ad.txt', 'utf8')
 let ad = JSON.parse(j)
 
 //opt
@@ -19,7 +19,7 @@ let opt = {
     //toEmailsBCC: 'firsemisphere@gmail.com',
     emAttachments: {
         filename: 'att.txt',
-        path: 'D:\\開源-Javascript-w-email\\att.txt'
+        path: 'D:\\開源-JS-003-2-w-email\\att.txt'
     }
 }
 
@@ -31,3 +31,5 @@ new WEmail(opt)
     .catch((err) => {
         console.log('catch', err)
     })
+
+//node --experimental-modules --es-module-specifier-resolution=node g.mjs
