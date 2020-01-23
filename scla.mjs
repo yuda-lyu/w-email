@@ -6,12 +6,15 @@ import fs from 'fs'
 //ad
 let j = fs.readFileSync('D:\\開源-JS-003-2-w-email\\ad.txt', 'utf8')
 let ad = JSON.parse(j)
+console.log(ad)
 
 //opt
 let opt = {
     srcName: 'test name',
     srcEmail: ad.srcEmail,
     srcPW: ad.srcPW,
+    srcHost: ad.srcHost,
+    srcPort: ad.srcPort,
     emTitle: 'test title',
     emContent: '<h4>test head</h4>' + '<div>test content</div>',
     toEmails: 'firsemisphere@gmail.com',

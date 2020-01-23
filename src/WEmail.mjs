@@ -68,9 +68,12 @@ function WEmail(opt = {}) {
 
     //郵件伺服器位址
     let srcHost = get(opt, 'srcHost', 'smtp.gmail.com')
+    //gmail外寄郵件 (SMTP) 伺服器
 
     //郵件伺服器連接埠
     let srcPort = get(opt, 'srcPort', 587)
+    //安全資料傳輸層 (SSL) 通訊埠：465
+    //傳輸層安全性 (TLS)/STARTTLS 通訊埠：587
 
     //郵件名稱
     let emTitle = get(opt, 'emTitle', '')
@@ -105,12 +108,25 @@ function WEmail(opt = {}) {
     //transporter
     let transporter = nodemailer.createTransport({
         host: srcHost,
-        secureConnecton: true,
         port: srcPort,
         auth: {
             user: srcEmail,
             pass: srcPW
-        }
+        },
+
+        //secureConnecton: true,
+        secure: true, // true for 465, false for other ports
+
+        // secure: false,
+        // port: 587,
+        // ssl: false,
+        // ignoreTLS: false,
+        // requireTLS: true,
+        // tls: {
+        //     secureProtocol: 'TLSv1_2_method',
+        //     rejectUnauthorized: false
+        // }
+
     })
 
     //optt
