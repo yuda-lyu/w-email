@@ -19,7 +19,7 @@ To view documentation or get support, visit [docs](https://yuda-lyu.github.io/w-
 npm i w-email
 ```
 #### Example:
-> **Link:** [[dev source code](https://github.com/yuda-lyu/w-email/blob/master/srv.mjs)]
+> **Link:** [[dev source code](https://github.com/yuda-lyu/w-email/blob/master/g.mjs)]
 ```alias
 import WEmail from 'w-eamil'
 

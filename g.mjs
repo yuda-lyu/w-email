@@ -5,7 +5,7 @@ import WEmail from './src/WEmail.mjs'
 
 
 //ad
-let fp = path.resolve('../', 'ad.txt')
+let fp = path.resolve('../', './_data', 'ad.txt')
 let j = fs.readFileSync(fp, 'utf8')
 let ad = JSON.parse(j)
 console.log(ad)
@@ -24,7 +24,7 @@ let opt = {
     //toEmailsBCC: 'firsemisphere@gmail.com',
     emAttachments: {
         filename: 'att.txt',
-        path: path.resolve('../', 'att.txt')
+        path: path.resolve('../', './_data', 'att.txt')
     }
 }
 
