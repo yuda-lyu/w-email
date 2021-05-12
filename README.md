@@ -14,7 +14,7 @@ To view documentation or get support, visit [docs](https://yuda-lyu.github.io/w-
 
 ## Installation
 ### Using npm(ES6 module):
-> **Note:** `w-email` depends on `nodemailer`.
+> **Note:** `w-email` is mainly dependent on `nodemailer`.
 ```alias
 npm i w-email
 ```

@@ -1,10 +1,12 @@
+import path from 'path'
+import fs from 'fs'
 import WEmail from './src/WEmail.mjs'
 //import WEmail from './dist/w-email.umd.js'
-import fs from 'fs'
 
 
 //ad
-let j = fs.readFileSync('D:\\開源-JS-003-2-w-email\\ad.txt', 'utf8')
+let fp = path.resolve('../', 'ad.txt')
+let j = fs.readFileSync(fp, 'utf8')
 let ad = JSON.parse(j)
 console.log(ad)
 
@@ -22,7 +24,7 @@ let opt = {
     //toEmailsBCC: 'firsemisphere@gmail.com',
     emAttachments: {
         filename: 'att.txt',
-        path: 'D:\\開源-JS-003-2-w-email\\att.txt'
+        path: path.resolve('../', 'att.txt')
     }
 }
 
@@ -35,4 +37,4 @@ new WEmail(opt)
         console.log('catch', err)
     })
 
-//node --experimental-modules --es-module-specifier-resolution=node scla.mjs
+//node --experimental-modules --es-module-specifier-resolution=node g.mjs

@@ -4,15 +4,15 @@
   "description": "A wrapper nodemailer for email.",
   "main": "dist/w-email.umd.js",
   "dependencies": {
-    "nodemailer": "^6.4.8",
-    "lodash": "^4.17.15",
-    "wsemi": "^1.4.41"
+    "nodemailer": "^6.6.0",
+    "lodash": "^4.17.21",
+    "wsemi": "^1.5.77"
   },
   "devDependencies": {
-    "w-package-tools": "^1.0.25"
+    "w-package-tools": "^1.0.54"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --require @babel/register",
+    "test": "mocha --parallel --timeout 60000 --experimental-modules --es-module-specifier-resolution=node",
     "deploy": "gh-pages -d docs"
   },
   "repository": {
