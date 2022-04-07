@@ -1,15 +1,15 @@
 {
   "name": "w-email",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "A wrapper nodemailer for email.",
   "main": "dist/w-email.umd.js",
   "dependencies": {
-    "nodemailer": "^6.7.2",
+    "nodemailer": "^6.7.3",
     "lodash": "^4.17.21",
-    "wsemi": "^1.6.34"
+    "wsemi": "^1.6.54"
   },
   "devDependencies": {
-    "w-package-tools": "^1.0.59"
+    "w-package-tools": "^1.0.65"
   },
   "scripts": {
     "test": "mocha --parallel --timeout 60000 --experimental-modules --es-module-specifier-resolution=node",
