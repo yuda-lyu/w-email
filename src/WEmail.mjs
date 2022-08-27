@@ -23,7 +23,7 @@ import isEmail from 'wsemi/src/isEmail.mjs'
  * @param {Object|Array} [opt.emAttachments=[]] 輸入附件物件或陣列，預設[]，物件內需包含filename與path
  * @returns {Promise} 回傳Promise，resolve回傳成功訊息，reject回傳錯誤訊息
  * @example
- * import WEmail from 'w-eamil'
+ * import WEmail from 'w-email'
  *
  * //opt
  * let opt = {

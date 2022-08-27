@@ -20,7 +20,7 @@ npm i w-email
 #### Example:
 > **Link:** [[dev source code](https://github.com/yuda-lyu/w-email/blob/master/g.mjs)]
 ```alias
-import WEmail from 'w-eamil'
+import WEmail from 'w-email'
 
 //opt
 let opt = {

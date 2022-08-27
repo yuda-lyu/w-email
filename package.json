@@ -1,6 +1,6 @@
 {
   "name": "w-email",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "main": "dist/w-email.umd.js",
   "dependencies": {
     "nodemailer": "^6.7.8",
