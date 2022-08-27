@@ -1,15 +1,14 @@
 {
   "name": "w-email",
-  "version": "1.0.25",
-  "description": "A wrapper nodemailer for email.",
+  "version": "1.0.26",
   "main": "dist/w-email.umd.js",
   "dependencies": {
-    "nodemailer": "^6.7.3",
+    "nodemailer": "^6.7.8",
     "lodash": "^4.17.21",
-    "wsemi": "^1.6.54"
+    "wsemi": "^1.6.78"
   },
   "devDependencies": {
-    "w-package-tools": "^1.0.65"
+    "w-package-tools": "^1.0.66"
   },
   "scripts": {
     "test": "mocha --parallel --timeout 60000 --experimental-modules --es-module-specifier-resolution=node",
@@ -27,9 +26,5 @@
     "nodejs"
   ],
   "author": "yuda-lyu(semisphere)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/yuda-lyu/w-email/issues"
-  },
-  "homepage": "https://github.com/yuda-lyu/w-email#readme"
+  "license": "MIT"
 }
