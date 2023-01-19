@@ -1,11 +1,11 @@
 {
   "name": "w-email",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "main": "dist/w-email.umd.js",
   "dependencies": {
-    "nodemailer": "^6.7.8",
+    "nodemailer": "^6.9.0",
     "lodash": "^4.17.21",
-    "wsemi": "^1.6.78"
+    "wsemi": "^1.6.87"
   },
   "devDependencies": {
     "w-package-tools": "^1.0.66"
