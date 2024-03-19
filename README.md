@@ -6,6 +6,7 @@ A wrapper nodemailer for email.
 [![license](https://img.shields.io/npm/l/w-email.svg?style=flat)](https://npmjs.org/package/w-email) 
 [![gzip file size](http://img.badgesize.io/yuda-lyu/w-email/master/dist/w-email.umd.js.svg?compression=gzip)](https://github.com/yuda-lyu/w-email)
 [![npm download](https://img.shields.io/npm/dt/w-email.svg)](https://npmjs.org/package/w-email) 
+[![npm download](https://img.shields.io/npm/dm/w-email.svg)](https://npmjs.org/package/w-email) 
 [![jsdelivr download](https://img.shields.io/jsdelivr/npm/hm/w-email.svg)](https://www.jsdelivr.com/package/npm/w-email)
 
 ## Documentation
