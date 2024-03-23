@@ -1,14 +1,14 @@
 {
   "name": "w-email",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "main": "dist/w-email.umd.js",
   "dependencies": {
-    "nodemailer": "^6.9.12",
+    "nodemailer": "^6.9.13",
     "lodash-es": "^4.17.21",
-    "wsemi": "^1.7.47"
+    "wsemi": "^1.7.49"
   },
   "devDependencies": {
-    "w-package-tools": "^1.0.73"
+    "w-package-tools": "^1.0.75"
   },
   "scripts": {
     "test": "mocha --parallel --timeout 60000 --experimental-modules --es-module-specifier-resolution=node",
