@@ -4,7 +4,6 @@ A wrapper nodemailer for email.
 ![language](https://img.shields.io/badge/language-JavaScript-orange.svg) 
 [![npm version](http://img.shields.io/npm/v/w-email.svg?style=flat)](https://npmjs.org/package/w-email) 
 [![license](https://img.shields.io/npm/l/w-email.svg?style=flat)](https://npmjs.org/package/w-email) 
-[![gzip file size](http://img.badgesize.io/yuda-lyu/w-email/master/dist/w-email.umd.js.svg?compression=gzip)](https://github.com/yuda-lyu/w-email)
 [![npm download](https://img.shields.io/npm/dt/w-email.svg)](https://npmjs.org/package/w-email) 
 [![npm download](https://img.shields.io/npm/dm/w-email.svg)](https://npmjs.org/package/w-email) 
 [![jsdelivr download](https://img.shields.io/jsdelivr/npm/hm/w-email.svg)](https://www.jsdelivr.com/package/npm/w-email)
@@ -13,11 +12,12 @@ A wrapper nodemailer for email.
 To view documentation or get support, visit [docs](https://yuda-lyu.github.io/w-email/global.html).
 
 ## Installation
+
 ### Using npm(ES6 module):
-> **Note:** `w-email` is mainly dependent on `nodemailer`.
 ```alias
 npm i w-email
 ```
+
 #### Example:
 > **Link:** [[dev source code](https://github.com/yuda-lyu/w-email/blob/master/g.mjs)]
 ```alias
