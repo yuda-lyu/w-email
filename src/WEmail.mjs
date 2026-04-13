@@ -71,7 +71,7 @@ function WEmail(opt = {}) {
     //gmail外寄郵件 (SMTP) 伺服器
 
     //郵件伺服器連接埠
-    let srcPort = get(opt, 'srcPort', 465)
+    let srcPort = get(opt, 'srcPort', 587)
     //安全資料傳輸層 (SSL) 通訊埠：465
     //傳輸層安全性 (TLS)/STARTTLS 通訊埠：587
 
