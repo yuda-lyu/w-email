@@ -140,13 +140,49 @@
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>寄送email</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>寄送email</p>
+<p>opt各欄位給予undefined或null時皆視為未給定而使用預設值；欄位型別或值不合規時，不連線即reject錯誤訊息字串(見下方「錯誤訊息」)。</p>
+<p><strong>email檢核規則</strong>(srcEmail，以及toEmails、toEmailsCC、toEmailsBCC之每一筆皆適用)：</p>
+<ol>
+<li>須為字串，先去除前後空白。</li>
+<li>網域(@之後)含非ASCII字元者視為國際化網域，先自動轉為punycode再檢核，並以轉換後之值寄送，例如<code>user@例子.測試</code>寄至<code>user@xn--fsqu00a.xn--g6w251d</code>；國際化網域內不得含空白、控制字元與<code>/</code>、<code>\</code>、<code>?</code>、<code>#</code>、<code>%</code>、<code>:</code>、<code>@</code>、<code>[</code>、<code>]</code>。</li>
+<li>再以wsemi之isEmail檢核，須同時符合：
+<ul>
+<li>全長至多254字元，帳號部分(@之前)至多64字元。</li>
+<li>帳號部分僅限ASCII之英數字與特殊字元 ! # $ % &amp; ' * + / = ? ^ _ { | } ~ - 及反引號，點只能作為分隔，不得位於開頭、結尾或連續出現。</li>
+<li>網域為一段以上之主機名稱(英數字與中間之連字號，每段至多63字元，不得以連字號開頭或結尾)加頂級網域，頂級網域須為2字元以上之英文字母，或xn--開頭之punycode。</li>
+</ul>
+</li>
+<li>因此以下格式一律拒收：帶顯示名稱或角括號(<code>Alice &lt;alice@example.com&gt;</code>、<code>&lt;alice@example.com&gt;</code>)、帶註解(<code>bob@example.com (Bob)</code>)、一個字串內含多筆(以逗號、分號或空白分隔)、引號形式之帳號(<code>&quot;john..doe&quot;@example.com</code>)、非ASCII之帳號(<code>張三@example.com</code>)、無頂級網域(<code>user@localhost</code>)、IP位址(<code>user@[127.0.0.1]</code>)、網域含底線。</li>
+</ol>
+<p><strong>收件人規則</strong>(toEmails、toEmailsCC、toEmailsBCC)：</p>
+<ul>
+<li>可為一個email字串(僅一位收件人)或email字串陣列，多位收件人須以陣列給予。</li>
+<li>給予null、undefined、false、0或空字串時，視為該欄無收件人；陣列內為falsy或空白字串之元素略過。</li>
+<li>三欄合計至少須有一位收件人。密件副本(toEmailsBCC)不出現於信件標頭。</li>
+</ul>
+<p><strong>附件規則</strong>(emAttachments)：</p>
+<ul>
+<li>可為附件物件或附件物件陣列；給予null、undefined、false、0或空字串時視為無附件，陣列內為falsy或空白字串之元素略過。</li>
+<li>每個附件物件須具下列內容來源之一：<code>raw</code>(非空)、<code>path</code>(非空字串，本機路徑或網址)、<code>href</code>(非空字串網址)、<code>content</code>(字串、Buffer或可讀串流)；<code>filename</code>若給予須為字串，或給予false表示不帶檔名。</li>
+<li>path與href會讀取本機檔案或連線下載，不可直接採用不可信任之輸入。</li>
+</ul>
+<p><strong>錯誤訊息</strong>(輸入檢核失敗時reject之字串，皆於連線前發生)：</p>
+<ul>
+<li><code>srcEmail is not email</code></li>
+<li><code>srcName is not string</code>、<code>srcPW is not string</code>、<code>emTitle is not string</code>、<code>emContent is not string</code></li>
+<li><code>srcHost is not effective string</code></li>
+<li><code>srcPort is not valid port</code></li>
+<li><code>toEmails is not string or array</code>、<code>toEmails is not email</code>(以字串給予時)、<code>toEmails[i] is not email</code>(以陣列給予時，i為元素索引)；toEmailsCC與toEmailsBCC同，僅欄位名不同</li>
+<li><code>no recipients</code></li>
+<li><code>emAttachments is not object or array</code>、<code>emAttachments is not valid attachment</code>(以物件給予時)、<code>emAttachments[i] is not valid attachment</code>(以陣列給予時)</li>
+</ul></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WEmail.mjs.html">WEmail.mjs</a>, <a href="WEmail.mjs.html#line53">line 53</a>
+        <a href="WEmail.mjs.html">WEmail.mjs</a>, <a href="WEmail.mjs.html#line241">line 241</a>
     </li></ul></dd>
     
 
@@ -193,7 +229,32 @@
 
     <h5 class="h5-examples">Example</h5>
     
-    <pre class="prettyprint"><code>import WEmail from 'w-email'//optlet opt = {    srcName: 'test name',    srcEmail: 'your email',    srcPW: 'your password',    emTitle: 'test title',    emContent: '&lt;h4>test head&lt;/h4>'+'&lt;div>test content&lt;/div>',    toEmails: 'to email',    //toEmailsCC: 'to email',    //toEmailsBCC: 'to email',    emAttachments: {        filename: 'your filename',        path: 'your filepath'    }}//WEmailnew WEmail(opt)    .then((msg)=>{        console.log('then',msg)    })    .catch((err)=>{        console.log('catch',err)    })</code></pre>
+    <pre class="prettyprint"><code>import WEmail from 'w-email'
+
+//opt
+let opt = {
+    srcName: 'test name',
+    srcEmail: 'your email',
+    srcPW: 'your password',
+    emTitle: 'test title',
+    emContent: '&lt;h4>test head&lt;/h4>'+'&lt;div>test content&lt;/div>',
+    toEmails: 'to email',
+    //toEmailsCC: 'to email',
+    //toEmailsBCC: 'to email',
+    emAttachments: {
+        filename: 'your filename',
+        path: 'your filepath'
+    }
+}
+
+//WEmail
+new WEmail(opt)
+    .then((msg)=>{
+        console.log('then',msg)
+    })
+    .catch((err)=>{
+        console.log('catch',err)
+    })</code></pre>
 
 
 
@@ -233,7 +294,7 @@
             <td class="type">
             
                 
-<span class="param-type">*</span>
+<span class="param-type">Object</span>
 
 
 
@@ -323,7 +384,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入寄件人顯示名稱字串，預設'system by w-email'</p></td>
+            <td class="description last"><p>輸入寄件人顯示名稱字串，可為數字，換行字元轉為空白並去除前後空白，給予空字串則不顯示名稱，預設'system by w-email'</p></td>
         </tr>
 
     
@@ -359,7 +420,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入寄件人email信箱字串</p></td>
+            <td class="description last"><p>輸入寄件人email信箱字串，亦作為登入郵件伺服器之帳號，須符合email檢核規則</p></td>
         </tr>
 
     
@@ -382,6 +443,8 @@
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
 
                 
 
@@ -392,10 +455,12 @@
             
                 <td class="default">
                 
+                    <code>''</code>
+                
                 </td>
             
 
-            <td class="description last"><p>輸入寄件人email密碼字串</p></td>
+            <td class="description last"><p>輸入寄件人email密碼字串，可為數字，郵件伺服器未要求登入時可為空字串，預設''</p></td>
         </tr>
 
     
@@ -435,7 +500,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入郵件伺服器位址，預設'smtp.gmail.com'</p></td>
+            <td class="description last"><p>輸入郵件伺服器位址字串，去除前後空白後不可為空，預設'smtp.gmail.com'</p></td>
         </tr>
 
     
@@ -448,6 +513,9 @@
             <td class="type">
             
                 
+<span class="param-type">Number</span>
+|
+
 <span class="param-type">String</span>
 
 
@@ -475,7 +543,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入郵件伺服器連接埠，預設587</p></td>
+            <td class="description last"><p>輸入郵件伺服器連接埠，可為正整數或其字串，範圍1至65535，465使用SSL/TLS連線，其他連接埠於伺服器支援時使用STARTTLS(伺服器未宣告STARTTLS時以明文連線與登入)，預設587</p></td>
         </tr>
 
     
@@ -515,7 +583,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入郵件名稱字串，預設''</p></td>
+            <td class="description last"><p>輸入郵件名稱字串，可為數字，預設''</p></td>
         </tr>
 
     
@@ -529,6 +597,9 @@
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type">Buffer</span>
 
 
 
@@ -555,7 +626,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入郵件訊息字串，預設''</p></td>
+            <td class="description last"><p>輸入郵件訊息字串，以html寄送，可為數字或Buffer，預設''</p></td>
         </tr>
 
     
@@ -598,7 +669,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入收件人email字串或陣列，預設[]</p></td>
+            <td class="description last"><p>輸入收件人email字串或陣列，須符合email檢核規則與收件人規則，預設[]</p></td>
         </tr>
 
     
@@ -641,7 +712,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入副本收件人email字串或陣列，預設[]</p></td>
+            <td class="description last"><p>輸入副本收件人email字串或陣列，規則同toEmails，預設[]</p></td>
         </tr>
 
     
@@ -684,7 +755,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入密件副本收件人email字串或陣列，預設[]</p></td>
+            <td class="description last"><p>輸入密件副本收件人email字串或陣列，規則同toEmails，預設[]</p></td>
         </tr>
 
     
@@ -727,7 +798,7 @@
                 </td>
             
 
-            <td class="description last"><p>輸入附件物件或陣列，預設[]，物件內需包含filename與path</p></td>
+            <td class="description last"><p>輸入附件物件或陣列，須符合附件規則，預設[]</p></td>
         </tr>
 
     
@@ -760,7 +831,7 @@
 
         
 <div class="param-desc">
-    <p>回傳Promise，resolve回傳成功訊息，reject回傳錯誤訊息</p>
+    <p>回傳Promise，resolve回傳郵件伺服器回應字串，部分收件人被伺服器拒收時仍為resolve且不回傳被拒名單；reject回傳錯誤，輸入檢核失敗時為錯誤訊息字串，其餘為Error物件(通常帶code，伺服器回應之錯誤另帶responseCode)；toEmails、toEmailsCC、toEmailsBCC合計至少須有一位收件人；郵件伺服器無回應時依nodemailer預設逾時(連線2分鐘、招呼30秒、閒置10分鐘)後reject</p>
 </div>
 
 
@@ -802,7 +873,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Sep 22 2026 18:29:00 GMT+0800 (台北標準時間) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Oct 01 2026 23:06:13 GMT+0800 (台北標準時間) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

@@ -1,7 +1,9 @@
 node_modules
+test/_tmp
 .agents
 CLAUDE*.md
 AGENTS*.md
+建議*.md
 .env
 tmp
 .opencode

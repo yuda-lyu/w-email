@@ -49,26 +49,214 @@
 import get from 'lodash-es/get.js'
 import genPm from 'wsemi/src/genPm.mjs'
 import isstr from 'wsemi/src/isstr.mjs'
+import isarr from 'wsemi/src/isarr.mjs'
 import isobj from 'wsemi/src/isobj.mjs'
+import ispint from 'wsemi/src/ispint.mjs'
+import cint from 'wsemi/src/cint.mjs'
 import isEmail from 'wsemi/src/isEmail.mjs'
+
+
+//getOpt, 取opt欄位值, undefined與null皆視為未給定而回傳預設值
+function getOpt(opt, key, def) {
+    let v = get(opt, key)
+    if (v === undefined || v === null) {
+        return def
+    }
+    return v
+}
+
+
+//toText, 文字欄位: 字串原樣回傳, 有限數字轉為字串, 其餘回傳null代表不合規
+function toText(v) {
+    if (isstr(v)) {
+        return v
+    }
+    if (typeof v === 'number' &amp;&amp; Number.isFinite(v)) {
+        return String(v)
+    }
+    return null
+}
+
+
+//isSkip, 陣列元素為falsy或空白字串者視為未給定而略過
+function isSkip(v) {
+    return !v || (isstr(v) &amp;&amp; v.trim() === '')
+}
+
+
+//hasNonAscii, 字串是否含非ASCII字元
+function hasNonAscii(s) {
+    return [...s].some((c) => {
+        return c.charCodeAt(0) > 0x7f
+    })
+}
+
+
+//hasUrlUnsafe, 字串是否含URL剖析器會截斷或改寫網域之字元(控制字元、空白、DEL與/\?#%:@[])
+function hasUrlUnsafe(s) {
+    return [...s].some((c) => {
+        let code = c.charCodeAt(0)
+        return code &lt;= 0x20 || code === 0x7f || '/\\?#%:@[]'.includes(c)
+    })
+}
+
+
+//normEmail, email正規化: 去除前後空白, 網域含非ASCII字元時先轉為punycode, 再以isEmail檢核, 回傳正規化後之email, 不合規回傳null
+function normEmail(v) {
+    if (!isstr(v)) {
+        return null
+    }
+    let email = v.trim()
+    let i = email.lastIndexOf('@')
+    if (i &lt; 0) {
+        return null
+    }
+    let local = email.slice(0, i)
+    let domain = email.slice(i + 1)
+    if (hasNonAscii(domain)) {
+        //國際化網域, 先排除URL剖析器會截斷或改寫之字元, 使檢核值與寄送值一致
+        if (hasUrlUnsafe(domain)) {
+            return null
+        }
+        try {
+            domain = new URL(`http://${domain}`).hostname
+        }
+        catch (err) {
+            return null
+        }
+    }
+    email = `${local}@${domain}`
+    if (!isEmail(email)) {
+        return null
+    }
+    return email
+}
+
+
+//normEmails, 收件人欄位正規化: 可為email字串或其陣列, falsy視為無收件人, 陣列元素為falsy或空白字串者略過
+function normEmails(opt, key) {
+    let v = get(opt, key)
+    if (!v) {
+        return { emails: [] }
+    }
+    let isArr = isarr(v)
+    if (isstr(v)) {
+        v = [v]
+    }
+    if (!isarr(v)) {
+        return { err: `${key} is not string or array` }
+    }
+    let emails = []
+    for (let i = 0; i &lt; v.length; i++) {
+        if (isSkip(v[i])) {
+            continue
+        }
+        let email = normEmail(v[i])
+        if (email === null) {
+            return { err: isArr ? `${key}[${i}] is not email` : `${key} is not email` }
+        }
+        emails.push(email)
+    }
+    return { emails }
+}
+
+
+//isAttachment, 附件物件須具nodemailer之內容來源raw、path、href或content其一, 且filename若給定須為字串或false
+function isAttachment(a) {
+    if (!isobj(a)) {
+        return false
+    }
+    let fn = a.filename
+    if (fn !== undefined &amp;&amp; fn !== null &amp;&amp; fn !== false &amp;&amp; !isstr(fn)) {
+        return false
+    }
+    if (a.raw) {
+        return true
+    }
+    if (isstr(a.path) &amp;&amp; a.path !== '') {
+        return true
+    }
+    if (isstr(a.href) &amp;&amp; a.href !== '') {
+        return true
+    }
+    let c = a.content
+    return isstr(c) || Buffer.isBuffer(c) || (!!c &amp;&amp; typeof c.pipe === 'function')
+}
+
+
+//normAttachments, 附件正規化: 可為附件物件或其陣列, falsy視為無附件, 陣列元素為falsy或空白字串者略過
+function normAttachments(opt) {
+    let v = get(opt, 'emAttachments')
+    if (!v) {
+        return { atts: [] }
+    }
+    let isArr = isarr(v)
+    if (isobj(v)) {
+        v = [v]
+    }
+    if (!isarr(v)) {
+        return { err: 'emAttachments is not object or array' }
+    }
+    let atts = []
+    for (let i = 0; i &lt; v.length; i++) {
+        if (isSkip(v[i])) {
+            continue
+        }
+        if (!isAttachment(v[i])) {
+            return { err: isArr ? `emAttachments[${i}] is not valid attachment` : 'emAttachments is not valid attachment' }
+        }
+        atts.push(v[i])
+    }
+    return { atts }
+}
 
 
 /**
  * 寄送email
  *
- * @param {*} [opt={}] 輸入設定物件，預設{}
- * @param {String} [opt.srcName='system by w-email'] 輸入寄件人顯示名稱字串，預設'system by w-email'
- * @param {String} opt.srcEmail 輸入寄件人email信箱字串
- * @param {String} opt.srcPW 輸入寄件人email密碼字串
- * @param {String} [opt.srcHost='smtp.gmail.com'] 輸入郵件伺服器位址，預設'smtp.gmail.com'
- * @param {String} [opt.srcPort=587] 輸入郵件伺服器連接埠，預設587
- * @param {String} [opt.emTitle=''] 輸入郵件名稱字串，預設''
- * @param {String} [opt.emContent=''] 輸入郵件訊息字串，預設''
- * @param {String|Array} [opt.toEmails=[]] 輸入收件人email字串或陣列，預設[]
- * @param {String|Array} [opt.toEmailsCC=[]] 輸入副本收件人email字串或陣列，預設[]
- * @param {String|Array} [opt.toEmailsBCC=[]] 輸入密件副本收件人email字串或陣列，預設[]
- * @param {Object|Array} [opt.emAttachments=[]] 輸入附件物件或陣列，預設[]，物件內需包含filename與path
- * @returns {Promise} 回傳Promise，resolve回傳成功訊息，reject回傳錯誤訊息
+ * opt各欄位給予undefined或null時皆視為未給定而使用預設值；欄位型別或值不合規時，不連線即reject錯誤訊息字串(見下方「錯誤訊息」)。
+ *
+ * **email檢核規則**(srcEmail，以及toEmails、toEmailsCC、toEmailsBCC之每一筆皆適用)：
+ * 1. 須為字串，先去除前後空白。
+ * 2. 網域(@之後)含非ASCII字元者視為國際化網域，先自動轉為punycode再檢核，並以轉換後之值寄送，例如`user@例子.測試`寄至`user@xn--fsqu00a.xn--g6w251d`；國際化網域內不得含空白、控制字元與`/`、`\`、`?`、`#`、`%`、`:`、`@`、`[`、`]`。
+ * 3. 再以wsemi之isEmail檢核，須同時符合：
+ *    - 全長至多254字元，帳號部分(@之前)至多64字元。
+ *    - 帳號部分僅限ASCII之英數字與特殊字元 ! # $ % &amp; ' * + / = ? ^ _ { | } ~ - 及反引號，點只能作為分隔，不得位於開頭、結尾或連續出現。
+ *    - 網域為一段以上之主機名稱(英數字與中間之連字號，每段至多63字元，不得以連字號開頭或結尾)加頂級網域，頂級網域須為2字元以上之英文字母，或xn--開頭之punycode。
+ * 4. 因此以下格式一律拒收：帶顯示名稱或角括號(`Alice &lt;alice@example.com>`、`&lt;alice@example.com>`)、帶註解(`bob@example.com (Bob)`)、一個字串內含多筆(以逗號、分號或空白分隔)、引號形式之帳號(`"john..doe"@example.com`)、非ASCII之帳號(`張三@example.com`)、無頂級網域(`user@localhost`)、IP位址(`user@[127.0.0.1]`)、網域含底線。
+ *
+ * **收件人規則**(toEmails、toEmailsCC、toEmailsBCC)：
+ * - 可為一個email字串(僅一位收件人)或email字串陣列，多位收件人須以陣列給予。
+ * - 給予null、undefined、false、0或空字串時，視為該欄無收件人；陣列內為falsy或空白字串之元素略過。
+ * - 三欄合計至少須有一位收件人。密件副本(toEmailsBCC)不出現於信件標頭。
+ *
+ * **附件規則**(emAttachments)：
+ * - 可為附件物件或附件物件陣列；給予null、undefined、false、0或空字串時視為無附件，陣列內為falsy或空白字串之元素略過。
+ * - 每個附件物件須具下列內容來源之一：`raw`(非空)、`path`(非空字串，本機路徑或網址)、`href`(非空字串網址)、`content`(字串、Buffer或可讀串流)；`filename`若給予須為字串，或給予false表示不帶檔名。
+ * - path與href會讀取本機檔案或連線下載，不可直接採用不可信任之輸入。
+ *
+ * **錯誤訊息**(輸入檢核失敗時reject之字串，皆於連線前發生)：
+ * - `srcEmail is not email`
+ * - `srcName is not string`、`srcPW is not string`、`emTitle is not string`、`emContent is not string`
+ * - `srcHost is not effective string`
+ * - `srcPort is not valid port`
+ * - `toEmails is not string or array`、`toEmails is not email`(以字串給予時)、`toEmails[i] is not email`(以陣列給予時，i為元素索引)；toEmailsCC與toEmailsBCC同，僅欄位名不同
+ * - `no recipients`
+ * - `emAttachments is not object or array`、`emAttachments is not valid attachment`(以物件給予時)、`emAttachments[i] is not valid attachment`(以陣列給予時)
+ *
+ * @param {Object} [opt={}] 輸入設定物件，預設{}
+ * @param {String} [opt.srcName='system by w-email'] 輸入寄件人顯示名稱字串，可為數字，換行字元轉為空白並去除前後空白，給予空字串則不顯示名稱，預設'system by w-email'
+ * @param {String} opt.srcEmail 輸入寄件人email信箱字串，亦作為登入郵件伺服器之帳號，須符合email檢核規則
+ * @param {String} [opt.srcPW=''] 輸入寄件人email密碼字串，可為數字，郵件伺服器未要求登入時可為空字串，預設''
+ * @param {String} [opt.srcHost='smtp.gmail.com'] 輸入郵件伺服器位址字串，去除前後空白後不可為空，預設'smtp.gmail.com'
+ * @param {Number|String} [opt.srcPort=587] 輸入郵件伺服器連接埠，可為正整數或其字串，範圍1至65535，465使用SSL/TLS連線，其他連接埠於伺服器支援時使用STARTTLS(伺服器未宣告STARTTLS時以明文連線與登入)，預設587
+ * @param {String} [opt.emTitle=''] 輸入郵件名稱字串，可為數字，預設''
+ * @param {String|Buffer} [opt.emContent=''] 輸入郵件訊息字串，以html寄送，可為數字或Buffer，預設''
+ * @param {String|Array} [opt.toEmails=[]] 輸入收件人email字串或陣列，須符合email檢核規則與收件人規則，預設[]
+ * @param {String|Array} [opt.toEmailsCC=[]] 輸入副本收件人email字串或陣列，規則同toEmails，預設[]
+ * @param {String|Array} [opt.toEmailsBCC=[]] 輸入密件副本收件人email字串或陣列，規則同toEmails，預設[]
+ * @param {Object|Array} [opt.emAttachments=[]] 輸入附件物件或陣列，須符合附件規則，預設[]
+ * @returns {Promise} 回傳Promise，resolve回傳郵件伺服器回應字串，部分收件人被伺服器拒收時仍為resolve且不回傳被拒名單；reject回傳錯誤，輸入檢核失敗時為錯誤訊息字串，其餘為Error物件(通常帶code，伺服器回應之錯誤另帶responseCode)；toEmails、toEmailsCC、toEmailsBCC合計至少須有一位收件人；郵件伺服器無回應時依nodemailer預設逾時(連線2分鐘、招呼30秒、閒置10分鐘)後reject
  * @example
  * import WEmail from 'w-email'
  *
@@ -100,100 +288,145 @@ import isEmail from 'wsemi/src/isEmail.mjs'
 function WEmail(opt = {}) {
     let pm = genPm()
 
-    //寄件人顯示名稱
-    let srcName = get(opt, 'srcName', 'system by w-email')
-
-    //寄件人email信箱
-    let srcEmail = get(opt, 'srcEmail', '')
-    if (!isEmail(srcEmail)) {
-        pm.reject('srcEmail is not email')
+    //fail, 輸入檢核失敗, 不連線即reject錯誤訊息字串
+    let fail = (msg) => {
+        pm.reject(msg)
         return pm
     }
 
-    //寄件人email密碼
-    let srcPW = get(opt, 'srcPW', '')
+    try {
 
-    //郵件伺服器位址
-    let srcHost = get(opt, 'srcHost', 'smtp.gmail.com')
-    //gmail外寄郵件 (SMTP) 伺服器
-
-    //郵件伺服器連接埠
-    let srcPort = get(opt, 'srcPort', 587)
-    //安全資料傳輸層 (SSL) 通訊埠：465
-    //傳輸層安全性 (TLS)/STARTTLS 通訊埠：587
-
-    //郵件名稱
-    let emTitle = get(opt, 'emTitle', '')
-
-    //郵件訊息
-    let emContent = get(opt, 'emContent', '')
-
-    //附件
-    let emAttachments = get(opt, 'emAttachments', [])
-    if (isobj(emAttachments)) {
-        emAttachments = [emAttachments]
-    }
-
-    //收件人email
-    let toEmails = get(opt, 'toEmails', [])
-    if (isstr(toEmails)) {
-        toEmails = [toEmails]
-    }
-
-    //副本收件人email
-    let toEmailsCC = get(opt, 'toEmailsCC', [])
-    if (isstr(toEmailsCC)) {
-        toEmailsCC = [toEmailsCC]
-    }
-
-    //密件副本收件人email
-    let toEmailsBCC = get(opt, 'toEmailsBCC', [])
-    if (isstr(toEmailsBCC)) {
-        toEmailsBCC = [toEmailsBCC]
-    }
-
-    //transporter
-    let transporter = nodemailer.createTransport({
-        host: srcHost,
-        port: srcPort,
-        auth: {
-            user: srcEmail,
-            pass: srcPW
-        },
-
-        //secureConnecton: true,
-        secure: srcPort === 465, // true for 465, false for other ports
-
-        // ssl: false,
-        // ignoreTLS: false,
-        // requireTLS: true,
-        // tls: {
-        //     secureProtocol: 'TLSv1_2_method',
-        //     rejectUnauthorized: false
-        // }
-
-    })
-
-    //optt
-    let optt = {
-        from: `${srcName} &lt;${srcEmail}>`,
-        to: toEmails.join(','),
-        cc: toEmailsCC.join(','),
-        bcc: toEmailsBCC.join(','),
-        subject: emTitle,
-        html: emContent,
-        attachments: emAttachments
-    }
-
-    //sendMail
-    transporter.sendMail(optt, function(err, info) {
-        if (err) {
-            pm.reject(err)
+        //寄件人email信箱
+        let srcEmail = normEmail(get(opt, 'srcEmail'))
+        if (srcEmail === null) {
+            return fail('srcEmail is not email')
         }
-        else {
-            pm.resolve(info.response)
+
+        //寄件人顯示名稱, 換行字元轉為空白並去除前後空白
+        let srcName = toText(getOpt(opt, 'srcName', 'system by w-email'))
+        if (srcName === null) {
+            return fail('srcName is not string')
         }
-    })
+        srcName = srcName.replace(/[\r\n]+/g, ' ').trim()
+
+        //寄件人email密碼, 郵件伺服器未要求登入時可為空字串
+        let srcPW = toText(getOpt(opt, 'srcPW', ''))
+        if (srcPW === null) {
+            return fail('srcPW is not string')
+        }
+
+        //郵件伺服器位址
+        let srcHost = getOpt(opt, 'srcHost', 'smtp.gmail.com')
+        if (!isstr(srcHost) || srcHost.trim() === '') {
+            return fail('srcHost is not effective string')
+        }
+        srcHost = srcHost.trim()
+        //gmail外寄郵件 (SMTP) 伺服器
+
+        //郵件伺服器連接埠, 可為正整數或其字串
+        let srcPort = getOpt(opt, 'srcPort', 587)
+        if (!ispint(srcPort) || cint(srcPort) > 65535) {
+            return fail('srcPort is not valid port')
+        }
+        srcPort = cint(srcPort)
+        //安全資料傳輸層 (SSL) 通訊埠：465
+        //傳輸層安全性 (TLS)/STARTTLS 通訊埠：587
+
+        //郵件名稱
+        let emTitle = toText(getOpt(opt, 'emTitle', ''))
+        if (emTitle === null) {
+            return fail('emTitle is not string')
+        }
+
+        //郵件訊息, 可為字串、數字或Buffer
+        let emContent = getOpt(opt, 'emContent', '')
+        if (!Buffer.isBuffer(emContent)) {
+            emContent = toText(emContent)
+            if (emContent === null) {
+                return fail('emContent is not string')
+            }
+        }
+
+        //附件
+        let ra = normAttachments(opt)
+        if (ra.err) {
+            return fail(ra.err)
+        }
+
+        //收件人email
+        let rt = normEmails(opt, 'toEmails')
+        if (rt.err) {
+            return fail(rt.err)
+        }
+
+        //副本收件人email
+        let rc = normEmails(opt, 'toEmailsCC')
+        if (rc.err) {
+            return fail(rc.err)
+        }
+
+        //密件副本收件人email
+        let rb = normEmails(opt, 'toEmailsBCC')
+        if (rb.err) {
+            return fail(rb.err)
+        }
+
+        //須至少一位收件人
+        if (rt.emails.length + rc.emails.length + rb.emails.length === 0) {
+            return fail('no recipients')
+        }
+
+        //transporter
+        let transporter = nodemailer.createTransport({
+            host: srcHost,
+            port: srcPort,
+            auth: {
+                user: srcEmail,
+                pass: srcPW
+            },
+
+            //secureConnecton: true,
+            secure: srcPort === 465, // true for 465, false for other ports
+
+            // ssl: false,
+            // ignoreTLS: false,
+            // requireTLS: true,
+            // tls: {
+            //     secureProtocol: 'TLSv1_2_method',
+            //     rejectUnauthorized: false
+            // }
+
+        })
+
+        //optt
+        let optt = {
+            from: {
+                name: srcName,
+                address: srcEmail,
+            }, //以位址物件給予, 避免srcName被當成位址字串重新解析
+            to: rt.emails,
+            cc: rc.emails,
+            bcc: rb.emails,
+            subject: emTitle,
+            html: emContent,
+            attachments: ra.atts
+        }
+
+        //sendMail
+        transporter.sendMail(optt, function(err, info) {
+            if (err) {
+                pm.reject(err)
+            }
+            else {
+                pm.resolve(info.response)
+            }
+        })
+
+    }
+    catch (err) {
+        //非預期之例外(例如opt之getter拋錯), reject原例外, 確保不同步拋出
+        pm.reject(err)
+    }
 
     return pm
 }
@@ -214,7 +447,7 @@ export default WEmail
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Tue Sep 22 2026 18:29:00 GMT+0800 (台北標準時間) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Oct 01 2026 23:06:13 GMT+0800 (台北標準時間) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
