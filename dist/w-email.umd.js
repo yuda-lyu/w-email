@@ -1,5 +1,5 @@
 /*!
- * w-email v1.1.19
+ * w-email v1.1.20
  * (c) 2018-2021 yuda-lyu(semisphere)
  * Released under the MIT License.
  */
